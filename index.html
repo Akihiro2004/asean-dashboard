@@ -7,10 +7,10 @@
     <script src="https://cdn.tailwindcss.com"></script>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
     <style>
         * {
-            font-family: 'Inter', sans-serif;
+            font-family: 'Poppins', sans-serif;
         }
         .gradient-bg {
             background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
@@ -107,17 +107,29 @@
 </head>
 <body class="bg-gray-50 antialiased">
     <!-- Header -->
-    <header class="gradient-bg text-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-black/5"></div>
-        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 py-12 lg:py-24">
-            <div class="flex flex-col lg:flex-row items-center justify-between mb-8">
-                <div class="max-w-2xl text-center lg:text-left mb-6 lg:mb-0">
-                    <h1 class="text-3xl sm:text-4xl lg:text-6xl font-light mb-4 tracking-tight text-balance">ASEAN Food Waste Climate Dashboard</h1>
-                    <p class="text-lg sm:text-xl lg:text-2xl font-light opacity-90 text-balance">Transforming Data into Action for a Sustainable Future</p>
+    <header class="relative overflow-hidden h-96 lg:h-64">
+        <div class="flex h-full">
+            <!-- Left Section - Dark Green with Text -->
+            <div class="w-full lg:w-1/2 bg-green-800 flex items-center justify-center relative">
+                <div class="text-white text-center lg:text-left px-8">
+                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 tracking-tight">ASEAN Food Waste</h1>
+                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">Climate Dashboard</h2>
+                    <p class="text-sm sm:text-base lg:text-lg font-medium tracking-wider uppercase opacity-80">BY BYTE PRAMANA</p>
                 </div>
-                <div class="hidden lg:flex items-center space-x-3">
-                    <div class="pulse-indicator w-2.5 h-2.5 bg-red-400 rounded-full"></div>
-                    <span class="text-sm font-medium tracking-wide uppercase opacity-90">Live Data</span>
+            </div>
+            
+            <!-- White Curved Separator - Hidden on mobile -->
+            <div class="hidden lg:block absolute left-1/2 top-0 bottom-0 w-1 bg-white transform -translate-x-1/2">
+                <svg class="w-full h-full" viewBox="0 0 1 100" preserveAspectRatio="none">
+                    <path d="M 0,20 Q 0.5,50 0,80" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
+                </svg>
+            </div>
+            
+            <!-- Right Section - Food Waste Image - Hidden on mobile -->
+            <div class="hidden lg:block w-1/2 relative">
+                <img src="foodwaste.png" alt="Food Waste" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                <div class="absolute inset-0 bg-gray-400 flex items-center justify-center" style="display: none;">
+                    <i class="fas fa-image text-white text-4xl"></i>
                 </div>
             </div>
         </div>
@@ -690,7 +702,7 @@
                         title: {
                             display: true,
                             text: 'ASEAN Greenhouse Gas Composition',
-                            font: { size: window.innerWidth < 768 ? 14 : 18, weight: '500', family: 'Inter' },
+                            font: { size: window.innerWidth < 768 ? 14 : 18, weight: '500', family: 'Poppins' },
                             padding: { bottom: window.innerWidth < 768 ? 10 : 20 },
                             color: '#374151'
                         },
@@ -700,7 +712,7 @@
                                 padding: window.innerWidth < 768 ? 10 : 20,
                                 usePointStyle: true,
                                 pointStyle: 'circle',
-                                font: { family: 'Inter', size: window.innerWidth < 768 ? 10 : 12 },
+                                font: { family: 'Poppins', size: window.innerWidth < 768 ? 10 : 12 },
                                 color: '#6b7280'
                             }
                         }
