@@ -1,1105 +1,939 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>ASEAN Food Waste Climate Dashboard</title>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no" />
+    <title>ASEAN Food Waste Dashboard - ZeroDish</title>
     <script src="https://cdn.tailwindcss.com"></script>
-    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet" />
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;500;600;700;800&display=swap" rel="stylesheet" />
     <style>
         * {
             font-family: 'Poppins', sans-serif;
         }
-        .gradient-bg {
-            background: linear-gradient(135deg, #065f46 0%, #10b981 100%);
+
+        :root {
+            --primary-green: #065f46;
+            --secondary-green: #10b981;
+            --light-green: #d1fae5;
+            --surface: #ffffff;
+            --surface-secondary: #f9fafb;
+            --text-primary: #111827;
+            --text-secondary: #6b7280;
+            --border-light: #f3f4f6;
+            --shadow-soft: 0 1px 3px 0 rgba(0,0,0,.1), 0 1px 2px 0 rgba(0,0,0,.06);
+            --shadow-medium: 0 4px 6px -1px rgba(0,0,0,.1), 0 2px 4px -1px rgba(0,0,0,.06);
+            --shadow-large: 0 10px 15px -3px rgba(0,0,0,.1), 0 4px 6px -2px rgba(0,0,0,.05);
+            --border-radius: 1rem;
+            --border-radius-lg: 1.25rem;
         }
-        .card-elegant {
-            transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
-            backdrop-filter: blur(10px);
+
+        .card {
+            background: var(--surface);
+            border: 1px solid var(--border-light);
+            border-radius: var(--border-radius-lg);
+            transition: box-shadow .25s ease, transform .25s ease, border-color .25s ease;
         }
-        .card-elegant:hover {
-            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.1);
+
+        .card:hover {
+            box-shadow: var(--shadow-large);
+            border-color: var(--light-green);
+            transform: translateY(-2px);
         }
-        .counter {
-            font-feature-settings: 'tnum';
-            font-variant-numeric: tabular-nums;
+
+        .card.clickable {
+            cursor: pointer;
         }
-        .pulse-indicator {
-            animation: pulse-glow 3s infinite;
+
+        .card.clickable:hover {
+            transform: translateY(-4px);
+            border-color: var(--secondary-green);
         }
-        @keyframes pulse-glow {
-            0%, 100% { 
-                opacity: 1;
-                box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
-            }
-            50% { 
-                opacity: 0.8;
-                box-shadow: 0 0 0 8px rgba(239, 68, 68, 0);
-            }
+
+        .chip {
+            font-size: .75rem;
+            letter-spacing: .08em;
+            text-transform: uppercase;
         }
+
+        .heading-hero {
+            letter-spacing: -.02em;
+            line-height: 1.05;
+        }
+
+        .icon-badge {
+            width: 42px;
+            height: 42px;
+            border-radius: .9rem;
+            display: grid;
+            place-items: center;
+        }
+
+        .hero-wrap {
+            position: relative;
+            background: linear-gradient(120deg, var(--primary-green) 0%, var(--secondary-green) 100%);
+        }
+
+        .hero-overlay {
+            position: absolute;
+            inset: 0;
+            background: linear-gradient(90deg, rgba(6,95,70,.9) 0%, rgba(6,95,70,.5) 45%, rgba(6,95,70,0) 70%);
+        }
+
+        .hero-img {
+            position: absolute;
+            inset: 0;
+            background-size: cover;
+            background-position: center;
+            opacity: .25;
+        }
+
+        .glass {
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.18);
+            backdrop-filter: blur(8px);
+        }
+
+        .btn-primary {
+            background: var(--secondary-green);
+            color: #fff;
+            border-radius: .9rem;
+            padding: .8rem 1.2rem;
+            font-weight: 500;
+            transition: all 0.3s ease;
+        }
+
+        .btn-primary:hover {
+            background: var(--primary-green);
+            box-shadow: var(--shadow-medium);
+            transform: translateY(-1px);
+        }
+
+        .btn-ghost {
+            border: 1px solid rgba(255,255,255,.25);
+            color: #fff;
+            border-radius: .9rem;
+            padding: .8rem 1.2rem;
+            transition: all 0.3s ease;
+        }
+
+        .btn-ghost:hover {
+            border-color: #fff;
+            background: rgba(255,255,255,.05);
+        }
+
         .fade-in {
             opacity: 0;
-            transform: translateY(40px);
-            transition: all 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            transform: translateY(18px);
+            transition: all .6s cubic-bezier(.25,.46,.45,.94);
         }
+
         .fade-in.visible {
             opacity: 1;
             transform: translateY(0);
         }
-        .section-divider {
-            height: 1px;
-            background: linear-gradient(90deg, transparent, #e5e7eb, transparent);
+
+        .counter {
+            font-feature-settings: 'tnum';
+            font-variant-numeric: tabular-nums;
         }
-        .text-balance {
-            text-wrap: balance;
+
+        .modal {
+            display: none;
+            position: fixed;
+            z-index: 9999;
+            left: 0;
+            top: 0;
+            width: 100%;
+            height: 100%;
+            background-color: rgba(0,0,0,0.5);
+            backdrop-filter: blur(4px);
         }
-        .glass-effect {
-            background: rgba(255, 255, 255, 0.95);
-            backdrop-filter: blur(20px);
-            border: 1px solid rgba(255, 255, 255, 0.2);
-        }
-        
-        /* Mobile-specific optimizations */
-        @media (max-width: 768px) {
-            .mobile-touch-target {
-                min-height: 44px;
-                min-width: 44px;
-            }
-            
-            .mobile-text-size {
-                font-size: 16px;
-                line-height: 1.5;
-            }
-            
-            .mobile-card-spacing {
-                padding: 1rem;
-                margin-bottom: 1rem;
-            }
-            
-            .mobile-modal {
-                margin: 1rem;
-                max-height: calc(100vh - 2rem);
-            }
-        }
-        .icon-minimal {
-            width: 24px;
-            height: 24px;
+
+        .modal.show {
             display: flex;
             align-items: center;
             justify-content: center;
         }
-        .stat-card {
+
+        .modal-content {
+            background: white;
+            margin: 2rem;
+            padding: 2rem;
+            border-radius: 1.25rem;
+            width: 100%;
+            max-width: 600px;
+            max-height: 90vh;
+            overflow-y: auto;
             position: relative;
-            overflow: hidden;
+            animation: modalSlideIn 0.3s ease-out;
         }
-        .stat-card::before {
-            content: '';
+
+        @keyframes modalSlideIn {
+            from {
+                transform: translateY(50px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        .close-modal {
             position: absolute;
-            top: 0;
-            left: 0;
-            right: 0;
-            height: 3px;
-            background: linear-gradient(90deg, var(--accent-color));
+            right: 1rem;
+            top: 1rem;
+            background: none;
+            border: none;
+            font-size: 1.5rem;
+            cursor: pointer;
+            color: #6b7280;
+            transition: color 0.2s ease;
+        }
+
+        .close-modal:hover {
+            color: #374151;
+        }
+
+        @media (max-width: 1024px) {
+            .hero-flex {
+                grid-template-columns: 1fr !important;
+            }
+            .hero-support {
+                display: none;
+            }
         }
     </style>
 </head>
-<body class="bg-gray-50 antialiased">
-    <!-- Header -->
-    <header class="relative overflow-hidden h-96 lg:h-80">
-        <div class="flex h-full">
-            <!-- Left Section - Dark Green with Text -->
-            <div class="w-full lg:w-1/2 bg-green-800 flex items-center justify-center relative">
-                <div class="text-white text-center lg:text-left px-8">
-                    <div class="flex items-center justify-center lg:justify-start mb-4">
-                        <div class="bg-white/10 backdrop-blur-sm rounded-lg px-3 py-2">
-                            <h3 class="text-white font-semibold text-sm lg:text-base tracking-wider uppercase drop-shadow-lg">ZeroDish Team</h3>
-                        </div>
-                    </div>
-                    <h1 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-2 tracking-tight">ASEAN Food Waste</h1>
-                    <h2 class="text-3xl sm:text-4xl lg:text-5xl font-bold mb-4 tracking-tight">Climate Dashboard</h2>
-                    <p class="text-sm sm:text-base lg:text-lg font-medium tracking-wider uppercase opacity-80">BY BYTE PRAMANA</p>
+
+<body class="bg-gray-50 antialiased text-gray-900">
+    <header class="hero-wrap">
+        <div class="hero-img" style="background-image:url('foodwaste.png');"></div>
+        <div class="hero-overlay"></div>
+        <nav class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-5 flex items-center justify-between">
+            <div class="flex items-center gap-3 text-white">
+                <div class="leading-tight">
+                    <p class="text-xs uppercase tracking-widest text-white/70">Byte Pramana Team</p>
+                    <p class="text-sm font-semibold">ASEAN Food Waste</p>
                 </div>
             </div>
-            
-            <!-- White Curved Separator - Hidden on mobile -->
-            <div class="hidden lg:block absolute left-1/2 top-0 bottom-0 w-1 bg-white transform -translate-x-1/2">
-                <svg class="w-full h-full" viewBox="0 0 1 100" preserveAspectRatio="none">
-                    <path d="M 0,20 Q 0.5,50 0,80" stroke="white" stroke-width="2" fill="none" stroke-linecap="round"/>
-                </svg>
+            <div class="hidden md:flex items-center gap-6 text-white/80">
+                <a href="#impact" class="hover:text-white transition">Impact</a>
+                <a href="#indonesia" class="hover:text-white transition">Indonesia</a>
+                <a href="#solutions" class="hover:text-white transition">Solutions</a>
+                <a href="https://zerodish.vercel.app/" target="_blank" class="btn-ghost">Open App</a>
             </div>
-            
-            <!-- Right Section - Food Waste Image - Hidden on mobile -->
-            <div class="hidden lg:block w-1/2 relative">
-                <img src="foodwaste.png" alt="Food Waste" class="w-full h-full object-cover" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
-                <div class="absolute inset-0 bg-gray-400 flex items-center justify-center" style="display: none;">
-                    <i class="fas fa-image text-white text-4xl"></i>
+            <a href="https://zerodish.vercel.app/" target="_blank" class="md:hidden btn-ghost text-sm">Open</a>
+        </nav>
+
+        <section class="relative z-10 max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6 pb-20 lg:pt-10 lg:pb-28">
+            <div class="grid hero-flex grid-cols-2 gap-10 items-center">
+                <div class="text-white space-y-7">
+                    <div class="inline-flex items-center gap-2 glass chip px-3 py-1 rounded-lg">
+                        <span class="w-1.5 h-1.5 rounded-full bg-emerald-300 animate-pulse"></span>
+                        <span>ZeroDish</span>
+                    </div>
+                    <h1 class="heading-hero text-4xl sm:text-5xl lg:text-6xl font-light">
+                        ASEAN Food Waste
+                        <span class="font-semibold">Climate Dashboard</span>
+                    </h1>
+                    <p class="text-white/85 text-lg leading-relaxed max-w-xl">
+                        Follow the flow: Climate Change → Rising Temperature → Gas Emissions → Food Waste. A clean, data-forward view that turns awareness into action.
+                    </p>
+                    <div class="flex flex-wrap gap-3">
+                        <a href="#impact" class="btn-primary inline-flex items-center gap-2">
+                            Explore Impact <i class="fa-solid fa-arrow-right-long"></i>
+                        </a>
+                        <a href="https://zerodish.vercel.app/" target="_blank" class="btn-ghost inline-flex items-center gap-2">
+                            Access ZeroDish <i class="fa-solid fa-up-right-from-square text-xs"></i>
+                        </a>
+                    </div>
+                    <div class="grid grid-cols-3 gap-4 pt-6">
+                      <div class="glass rounded-xl p-4 border border-white/10">
+                            <p class="text-xs uppercase tracking-widest text-white/70">People Displaced</p>
+                            <p class="mt-1 text-2xl font-bold counter">200M</p>
+                            <p class="text-xs text-white/60 mt-1">Predicted by 2050</p>
+                        </div>
+                        <div class="glass rounded-xl p-4 border border-white/10">
+                            <p class="text-xs uppercase tracking-widest text-white/70">Climate Migrants</p>
+                            <p class="mt-1 text-2xl font-bold counter">216M</p>
+                            <p class="text-xs text-white/60 mt-1">Predicted by 2050</p>
+                        </div>
+                    </div>
+                </div>
+                
+                <div class="hero-support">
+                    <div class="card p-6 lg:p-7 bg-white/95">
+                        <div class="flex items-center justify-between mb-4">
+                            <div class="flex items-center gap-3">
+                                <div class="icon-badge bg-emerald-50">
+                                    <i class="fa-solid fa-chart-pie text-emerald-600"></i>
+                                </div>
+                                <div>
+                                    <p class="text-xs uppercase tracking-widest text-gray-500">Snapshot</p>
+                                    <h3 class="text-lg font-medium text-gray-900">ASEAN GHG Composition</h3>
+                                </div>
+                            </div>
+                            <span class="text-xs text-gray-400">Live</span>
+                        </div>
+                        <div class="h-64">
+                            <canvas id="heroDoughnut"></canvas>
+                        </div>
+                        <div class="mt-4 grid grid-cols-4 gap-3 text-xs text-gray-600">
+                            <span class="inline-flex items-center gap-1"><i class="fa-solid fa-circle text-red-500 text-[8px]"></i> CO₂</span>
+                            <span class="inline-flex items-center gap-1"><i class="fa-solid fa-circle text-orange-500 text-[8px]"></i> CH₄</span>
+                            <span class="inline-flex items-center gap-1"><i class="fa-solid fa-circle text-yellow-500 text-[8px]"></i> N₂O</span>
+                            <span class="inline-flex items-center gap-1"><i class="fa-solid fa-circle text-purple-500 text-[8px]"></i> F-gases</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </section>
+    </header>
+
+    <div class="bg-red-500 text-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-3 text-center flex items-center justify-center gap-3">
+            <i class="fas fa-triangle-exclamation text-sm"></i>
+            <p class="font-medium text-sm">Climate Change is the 2nd Most Pressing Challenge in ASEAN</p>
+            <i class="fas fa-triangle-exclamation text-sm"></i>
+        </div>
+    </div>
+
+    <section class="py-12 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="card clickable group relative overflow-hidden bg-gradient-to-br from-slate-50 to-white border border-gray-200/80 hover:border-gray-300/60 transition-all duration-500" onclick="openWorldBankLink()">
+                <div class="absolute inset-0 opacity-[0.02] bg-gradient-to-br from-slate-900 via-transparent to-slate-900"></div>
+                
+                <div class="relative p-8 lg:p-10">
+                    <div class="flex items-start justify-between mb-6">
+                        <div class="flex items-center gap-3">
+                            <div class="w-10 h-10 rounded-xl bg-blue-50 border border-blue-100 grid place-items-center group-hover:bg-blue-100 transition-colors duration-300">
+                                <i class="fa-solid fa-building-columns text-blue-600 text-sm"></i>
+                            </div>
+                            <div>
+                                <p class="text-xs font-medium uppercase tracking-wider text-blue-600 mb-0.5">World Bank</p>
+                                <p class="text-sm text-gray-500">Official Report • 2021</p>
+                            </div>
+                        </div>
+                        <div class="opacity-60 group-hover:opacity-100 transition-opacity duration-300">
+                            <i class="fa-solid fa-arrow-up-right-from-square text-gray-400 text-sm"></i>
+                        </div>
+                    </div>
+
+                    <div class="space-y-4">
+                        <h3 class="text-2xl lg:text-3xl font-light text-gray-900 leading-tight">
+                            Climate Migration <span class="font-medium">Crisis</span>
+                        </h3>
+                        
+                        <p class="text-gray-600 text-lg leading-relaxed">
+                            Climate change could force 
+                            <span class="inline-flex items-center gap-1 px-2 py-0.5 bg-amber-50 border border-amber-200 rounded-lg text-amber-800 font-semibold">
+                                <i class="fa-solid fa-triangle-exclamation text-amber-600 text-xs"></i>
+                                216 million people
+                            </span>
+                            to migrate within their own countries by 2050
+                        </p>
+
+                        <div class="grid grid-cols-3 gap-4 pt-4 border-t border-gray-100">
+                            <div class="text-center">
+                                <div class="text-lg font-light text-gray-900">6 Regions</div>
+                                <div class="text-xs text-gray-500 uppercase tracking-wide">Affected</div>
+                            </div>
+                            <div class="text-center border-x border-gray-100">
+                                <div class="text-lg font-light text-gray-900">1.2% GDP</div>
+                                <div class="text-xs text-gray-500 uppercase tracking-wide">Impact</div>
+                            </div>
+                            <div class="text-center">
+                                <div class="text-lg font-light text-gray-900">2050</div>
+                                <div class="text-xs text-gray-500 uppercase tracking-wide">Timeline</div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="mt-6 pt-4 border-t border-gray-100">
+                        <div class="flex items-center justify-between">
+                            <span class="text-sm text-gray-500">Read full report</span>
+                            <div class="flex items-center gap-2 text-blue-600 text-sm font-medium group-hover:gap-3 transition-all duration-300">
+                                <span>View Details</span>
+                                <i class="fa-solid fa-arrow-right text-xs"></i>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
-    </header>
+    </section>
 
-    <!-- Crisis Alert Banner -->
-    <div class="bg-red-500 text-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 py-4">
-            <div class="flex items-center justify-center space-x-3 sm:space-x-6">
-                <div class="icon-minimal mobile-touch-target">
-                    <i class="fas fa-exclamation-triangle"></i>
+    <section id="impact" class="py-16 lg:py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl lg:text-4xl font-bold mb-2">Climate Impact Chain</h2>
+                <p class="text-gray-600">Click each card to explore detailed impacts</p>
+            </div>
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-5">
+                <div class="card clickable p-6 text-center" onclick="openModal('climate-change-modal')">
+                    <div class="icon-badge bg-red-50 mx-auto mb-4"><i class="fa-solid fa-globe text-red-600"></i></div>
+                    <h3 class="text-xl font-light mb-1">Climate Change</h3>
+                    <p class="text-sm text-gray-500">A global threat displacing millions by 2050</p>
+                    <div class="mt-3 text-xs text-blue-600 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-info-circle"></i> Click for details
+                    </div>
                 </div>
-                <p class="font-medium text-center text-balance text-sm sm:text-base">Climate Change is the 2nd Most Pressing Challenge in ASEAN</p>
-                <div class="icon-minimal mobile-touch-target">
-                    <i class="fas fa-exclamation-triangle"></i>
+                <div class="card clickable p-6 text-center" onclick="openModal('temperature-modal')">
+                    <div class="icon-badge bg-orange-50 mx-auto mb-4"><i class="fa-solid fa-temperature-high text-orange-600"></i></div>
+                    <h3 class="text-xl font-light mb-1">Rising Temperature</h3>
+                    <p class="text-sm text-gray-500">Driving extreme weather patterns</p>
+                    <div class="mt-3 text-xs text-blue-600 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-info-circle"></i> Click for details
+                    </div>
+                </div>
+                <div class="card clickable p-6 text-center" onclick="openModal('emissions-modal')">
+                    <div class="icon-badge bg-yellow-50 mx-auto mb-4"><i class="fa-solid fa-industry text-yellow-600"></i></div>
+                    <h3 class="text-xl font-light mb-1">Gas Emissions</h3>
+                    <p class="text-sm text-gray-500">Industry & transport contributions</p>
+                    <div class="mt-3 text-xs text-blue-600 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-info-circle"></i> Click for details
+                    </div>
+                </div>
+                <div class="card clickable p-6 text-center" onclick="openModal('food-waste-modal')">
+                    <div class="icon-badge bg-emerald-50 mx-auto mb-4"><i class="fa-solid fa-trash text-emerald-600"></i></div>
+                    <h3 class="text-xl font-light mb-1">Food Waste</h3>
+                    <p class="text-sm text-gray-500">≈6% of global GHG emissions</p>
+                    <div class="mt-3 text-xs text-blue-600 flex items-center justify-center gap-1">
+                        <i class="fa-solid fa-info-circle"></i> Click for details
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 lg:py-20 bg-white">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-center">
+            <div class="space-y-6">
+                <h2 class="text-3xl sm:text-4xl font-bold">Health & Environmental Impact</h2>
+                <div class="space-y-4">
+                    <div class="flex items-start gap-3">
+                        <div class="icon-badge bg-red-50"><i class="fa-solid fa-skull-crossbones text-red-600"></i></div>
+                        <div>
+                            <h4 class="font-medium">1,256,300 Premature Deaths</h4>
+                            <p class="text-sm text-gray-500">PM2.5 air pollution deaths annually</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="icon-badge bg-blue-50"><i class="fa-solid fa-lungs text-blue-600"></i></div>
+                        <div>
+                            <h4 class="font-medium">~14% Respiratory Illness</h4>
+                            <p class="text-sm text-gray-500">ASEAN population affected annually</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="icon-badge bg-emerald-50"><i class="fa-solid fa-utensils text-emerald-600"></i></div>
+                        <div>
+                            <h4 class="font-medium">20.6% Food Crisis</h4>
+                            <p class="text-sm text-gray-500">140 million people face food insecurity</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="icon-badge bg-yellow-50"><i class="fa-solid fa-water text-yellow-600"></i></div>
+                        <div>
+                            <h4 class="font-medium">25% Flooding Risk</h4>
+                            <p class="text-sm text-gray-500">Rising sea levels affect low-lying areas</p>
+                        </div>
+                    </div>
+                    <div class="flex items-start gap-3">
+                        <div class="icon-badge bg-purple-50"><i class="fa-solid fa-industry text-purple-600"></i></div>
+                        <div>
+                            <h4 class="font-medium">33.6% Emission Source</h4>
+                            <p class="text-sm text-gray-500">Electricity & heat generation sectors</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div>
+                <div class="card p-6">
+                    <div class="h-80">
+                        <canvas id="emissionsChart"></canvas>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="indonesia" class="py-16 lg:py-20 bg-gray-50">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6">
+            <div class="text-center mb-12">
+                <h2 class="text-3xl lg:text-4xl font-bold mb-2">Indonesia: A Critical Case Study</h2>
+                <p class="text-gray-600">Examining the correlation between food waste and emissions</p>
+            </div>
+            <div class="grid lg:grid-cols-3 gap-6">
+                <div class="card p-6 text-center">
+                    <div class="w-16 h-16 mx-auto rounded-xl bg-red-50 grid place-items-center mb-5"><i class="fa-solid fa-chart-line text-red-600 text-2xl"></i></div>
+                    <h3 class="font-medium mb-2">CO₂ Levels</h3>
+                    <p class="text-3xl font-light text-red-600 counter">424.60</p>
+                    <p class="text-sm text-gray-500">ppm average (2025 data)</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="w-16 h-16 mx-auto rounded-xl bg-orange-50 grid place-items-center mb-5"><i class="fa-solid fa-trash text-orange-600 text-2xl"></i></div>
+                    <h3 class="font-medium mb-2">Food Waste</h3>
+                    <p class="text-3xl font-light text-orange-600 counter">2318.29</p>
+                    <p class="text-sm text-gray-500">tons/day (July 2025)</p>
+                </div>
+                <div class="card p-6 text-center">
+                    <div class="w-16 h-16 mx-auto rounded-xl bg-blue-50 grid place-items-center mb-5"><i class="fa-solid fa-globe text-blue-600 text-2xl"></i></div>
+                    <h3 class="font-medium mb-2">Global Rank</h3>
+                    <p class="text-3xl font-light text-blue-600">#2</p>
+                    <p class="text-sm text-gray-500">Most diligent in food waste management</p>
+                </div>
+            </div>
+            <p class="mt-10 max-w-4xl mx-auto text-center text-gray-600">
+                Indonesia contributes 33.6% of ASEAN CO₂ emissions from electricity and heat generation, with food waste decomposition adding 8-10% to global greenhouse gases.
+            </p>
+        </div>
+    </section>
+
+    <section class="py-16 lg:py-20 bg-white">
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-8">
+            <div class="card p-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="icon-badge bg-red-500 text-white"><i class="fa-solid fa-chart-pie"></i></div>
+                    <h3 class="text-xl font-medium">Emission Breakdown</h3>
+                </div>
+                <ul class="space-y-3">
+                    <li class="flex items-center justify-between p-4 rounded-xl border bg-red-50 border-red-100">
+                        <span class="flex items-center gap-3"><span class="w-2.5 h-2.5 rounded-full bg-red-500"></span> CO₂</span>
+                        <span class="text-red-600 font-medium">70%</span>
+                    </li>
+                    <li class="flex items-center justify-between p-4 rounded-xl border bg-orange-50 border-orange-100">
+                        <span class="flex items-center gap-3"><span class="w-2.5 h-2.5 rounded-full bg-orange-500"></span> CH₄</span>
+                        <span class="text-orange-600 font-medium">23%</span>
+                    </li>
+                    <li class="flex items-center justify-between p-4 rounded-xl border bg-yellow-50 border-yellow-100">
+                        <span class="flex items-center gap-3"><span class="w-2.5 h-2.5 rounded-full bg-yellow-500"></span> N₂O</span>
+                        <span class="text-yellow-600 font-medium">5%</span>
+                    </li>
+                    <li class="flex items-center justify-between p-4 rounded-xl border bg-purple-50 border-purple-100">
+                        <span class="flex items-center gap-3"><span class="w-2.5 h-2.5 rounded-full bg-purple-500"></span> F-gases</span>
+                        <span class="text-purple-600 font-medium">2%</span>
+                    </li>
+                </ul>
+            </div>
+            <div class="card p-6">
+                <div class="flex items-center gap-3 mb-5">
+                    <div class="icon-badge bg-emerald-500 text-white"><i class="fa-solid fa-recycle"></i></div>
+                    <h3 class="text-xl font-medium">Food Waste Lifecycle</h3>
+                </div>
+                <ul class="space-y-3">
+                    <li class="flex items-center justify-between p-4 rounded-xl border bg-blue-50 border-blue-100">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-seedling text-blue-600"></i> Agriculture</span>
+                        <span class="text-blue-600 font-medium">21.78%</span>
+                    </li>
+                    <li class="flex items-center justify-between p-4 rounded-xl border bg-indigo-50 border-indigo-100">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-industry text-indigo-600"></i> Processing</span>
+                        <span class="text-indigo-600 font-medium">10–15%</span>
+                    </li>
+                    <li class="flex items-center justify-between p-4 rounded-xl border bg-cyan-50 border-cyan-100">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-truck text-cyan-600"></i> Distribution</span>
+                        <span class="text-cyan-600 font-medium">14.85%</span>
+                    </li>
+                    <li class="flex items-center justify-between p-4 rounded-xl border bg-teal-50 border-teal-100">
+                        <span class="flex items-center gap-3"><i class="fa-solid fa-house text-teal-600"></i> Consumption</span>
+                        <span class="text-teal-600 font-medium">61%</span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+        <div class="max-w-6xl mx-auto px-4 sm:px-6 mt-8">
+            <div class="card p-6 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
+                <div class="text-center mb-4">
+                    <i class="fas fa-triangle-exclamation text-yellow-400"></i>
+                    <h3 class="text-lg font-medium mt-2">Critical Impact Summary</h3>
+                </div>
+                <div class="grid grid-cols-3 gap-6 text-center">
+                    <div>
+                        <div class="text-2xl font-light text-yellow-400 mb-1">70%</div>
+                        <p class="text-gray-300 text-xs">CO₂ emissions</p>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-light text-red-400 mb-1">23%</div>
+                        <p class="text-gray-300 text-xs">Methane</p>
+                    </div>
+                    <div>
+                        <div class="text-2xl font-light text-emerald-300 mb-1">61%</div>
+                        <p class="text-gray-300 text-xs">Household waste</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="solutions" class="relative py-16 lg:py-20 text-white" style="background: linear-gradient(120deg, var(--primary-green), var(--secondary-green));">
+        <div class="absolute inset-0 bg-black/5"></div>
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 grid lg:grid-cols-2 gap-10 items-center">
+            <div class="space-y-6">
+                <h2 class="text-3xl lg:text-4xl font-bold">Introducing ZeroDish</h2>
+                <p class="text-white/85">The Future of Food Waste Management</p>
+                <ul class="space-y-3 text-white/95">
+                    <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-300 grid place-items-center text-emerald-900 text-xs"><i class="fa-solid fa-check"></i></span> Convert food waste to biogas energy</li>
+                    <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-300 grid place-items-center text-emerald-900 text-xs"><i class="fa-solid fa-check"></i></span> Real-time monitoring via smartphone app</li>
+                    <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-300 grid place-items-center text-emerald-900 text-xs"><i class="fa-solid fa-check"></i></span> Reduce CO₂ emissions by 1642.5 kg/year</li>
+                    <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-300 grid place-items-center text-emerald-900 text-xs"><i class="fa-solid fa-check"></i></span> Save 1642.5 kg LPG annually</li>
+                    <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-300 grid place-items-center text-emerald-900 text-xs"><i class="fa-solid fa-check"></i></span> Community education on waste reduction</li>
+                    <li class="flex items-center gap-3"><span class="w-5 h-5 rounded-full bg-emerald-300 grid place-items-center text-emerald-900 text-xs"><i class="fa-solid fa-check"></i></span> Partnerships with local governments for scalability</li>
+                </ul>
+                <a href="https://zerodish.vercel.app/" target="_blank" class="btn-primary inline-flex items-center gap-2">Access ZeroDish App <i class="fa-solid fa-arrow-right-long"></i></a>
+            </div>
+            <div>
+                <div class="glass rounded-2xl p-8 border border-white/20">
+                    <h4 class="text-xl font-light mb-6 text-center">Impact Per Person Per Year</h4>
+                    <div class="grid grid-cols-2 gap-6 text-center">
+                        <div>
+                            <div class="text-2xl font-light text-emerald-200">3285 m³</div>
+                            <p class="text-sm text-white/80">Biogas Produced</p>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-light text-emerald-200">1642.5 kg</div>
+                            <p class="text-sm text-white/80">CO₂ Reduction</p>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-light text-emerald-200">547.5 kg</div>
+                            <p class="text-sm text-white/80">Residue Granules</p>
+                        </div>
+                        <div>
+                            <div class="text-2xl font-light text-emerald-200">1642.5 kg</div>
+                            <p class="text-sm text-white/80">LPG Savings</p>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="py-16 bg-gray-900 text-white">
+        <div class="max-w-4xl mx-auto px-6 text-center">
+            <h2 class="text-3xl lg:text-4xl font-bold mb-4">Take Action Today</h2>
+            <p class="text-white/80 mb-8">Join the movement to reduce food waste and combat climate change</p>
+            <div class="flex flex-col sm:flex-row justify-center gap-4">
+                <a href="https://zerodish.vercel.app/" target="_blank" class="btn-primary inline-flex items-center justify-center gap-2"><span>Try ZeroDish Now</span><i class="fa-solid fa-arrow-right-long"></i></a>
+                <a href="#impact" class="btn-ghost inline-flex items-center justify-center gap-2">Learn More</a>
+            </div>
+        </div>
+    </section>
+
+    <footer class="bg-gray-950 text-white py-6">
+        <div class="text-center">
+            <p class="text-gray-400 text-sm">© 2025 ZeroDish. All Rights Reserved.</p>
+        </div>
+    </footer>
+
+    <div id="climate-change-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('climate-change-modal')">&times;</button>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="icon-badge bg-red-500 text-white"><i class="fa-solid fa-globe"></i></div>
+                <h2 class="text-2xl font-semibold text-red-600">Climate Change Impact</h2>
+            </div>
+            <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                    Climate change represents one of the most pressing challenges of our time, with far-reaching consequences across the globe. The evidence is overwhelming and the impacts are accelerating.
+                </p>
+                <div class="bg-red-50 p-4 rounded-lg border border-red-100">
+                    <h3 class="font-semibold text-red-800 mb-2">Key Statistics:</h3>
+                    <ul class="space-y-1 text-red-700 text-sm">
+                        <li>• 216 million climate migrants expected by 2050</li>
+                        <li>• Global temperature has risen 1.1°C since pre-industrial times</li>
+                        <li>• Sea levels rising at 3.3mm per year</li>
+                        <li>• Arctic ice declining at 13% per decade</li>
+                    </ul>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-gray-800">Primary Causes:</h3>
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <i class="fa-solid fa-industry text-gray-600 mr-2"></i>
+                            <span class="text-sm">Industrial emissions (25%)</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <i class="fa-solid fa-car text-gray-600 mr-2"></i>
+                            <span class="text-sm">Transportation (14%)</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <i class="fa-solid fa-tree text-gray-600 mr-2"></i>
+                            <span class="text-sm">Deforestation (11%)</span>
+                        </div>
+                        <div class="bg-gray-50 p-3 rounded-lg">
+                            <i class="fa-solid fa-utensils text-gray-600 mr-2"></i>
+                            <span class="text-sm">Food systems (24%)</span>
+                        </div>
+                    </div>
                 </div>
             </div>
         </div>
     </div>
 
-    <!-- Key Statistics -->
-    <section class="py-12 lg:py-32">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
-
-            
-            <!-- Emergency Alert Banner -->
-            <div class="gradient-bg text-white rounded-3xl p-6 sm:p-8 lg:p-12 mb-12 lg:mb-16 relative overflow-hidden">
-                <div class="absolute inset-0 bg-black/10"></div>
-                <div class="relative text-center">
-                    <div class="flex items-center justify-center mb-4 lg:mb-6">
-                        <div class="pulse-indicator w-3 h-3 sm:w-4 sm:h-4 bg-red-400 rounded-full mr-2 sm:mr-4"></div>
-                        <span class="text-sm sm:text-lg font-medium tracking-wide uppercase opacity-90">EMERGENCY ALERT</span>
-                        <div class="pulse-indicator w-3 h-3 sm:w-4 sm:h-4 bg-red-400 rounded-full ml-2 sm:ml-4"></div>
-                    </div>
-                    <h3 class="text-2xl sm:text-3xl lg:text-5xl font-bold mb-4 lg:mb-6 text-balance">Climate change is a big danger to the world!</h3>
-                    <p class="text-base sm:text-lg lg:text-2xl font-light opacity-90 mb-3 lg:mb-4 text-balance">If climate change isn't addressed, by 2050 over 200 million people could be displaced due to natural disasters and rising sea levels</p>
-                    <p class="text-xs sm:text-sm opacity-70">(latimes.com, 2022)</p>
-                </div>
+    <div id="temperature-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('temperature-modal')">&times;</button>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="icon-badge bg-orange-500 text-white"><i class="fa-solid fa-temperature-high"></i></div>
+                <h2 class="text-2xl font-semibold text-orange-600">Rising Global Temperatures</h2>
             </div>
-
-            <!-- Statistics Grid -->
-            <div class="grid grid-cols-1 md:grid-cols-3 gap-4 sm:gap-8 mb-12 lg:mb-16">
-                <div class="stat-card glass-effect card-elegant rounded-2xl p-6 sm:p-8 text-center mobile-card-spacing" style="--accent-color: #dc2626;">
-                    <div class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6 rounded-full bg-red-50 flex items-center justify-center">
-                        <i class="fas fa-users text-red-600 text-lg sm:text-xl"></i>
-                    </div>
-                    <h3 class="text-2xl sm:text-3xl lg:text-4xl font-bold counter text-gray-900 mb-2" data-count="200">0</h3>
-                    <p class="text-gray-600 font-medium text-balance text-sm sm:text-base">Million People Displaced by 2050</p>
+            <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                    Global temperatures are rising at an unprecedented rate, triggering cascading effects throughout Earth's climate system and fundamentally altering weather patterns worldwide.
+                </p>
+                <div class="bg-orange-50 p-4 rounded-lg border border-orange-100">
+                    <h3 class="font-semibold text-orange-800 mb-2">Temperature Trends:</h3>
+                    <ul class="space-y-1 text-orange-700 text-sm">
+                        <li>• 2023 was the hottest year on record globally</li>
+                        <li>• Last decade was the warmest in 125,000 years</li>
+                        <li>• Arctic warming twice as fast as global average</li>
+                        <li>• Ocean temperatures rising to record levels</li>
+                    </ul>
                 </div>
-                <div class="stat-card glass-effect card-elegant rounded-2xl p-6 sm:p-8 text-center mobile-card-spacing" style="--accent-color: #059669;">
-                    <div class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6 rounded-full bg-green-50 flex items-center justify-center">
-                        <i class="fas fa-globe text-green-600 text-lg sm:text-xl"></i>
-                    </div>
-                    <h3 class="text-2xl sm:text-3xl lg:text-4xl font-bold counter text-gray-900 mb-2" data-count="216">0</h3>
-                    <p class="text-gray-600 font-medium text-balance text-sm sm:text-base">Million Climate Migrants by 2050</p>
-                </div>
-                <div class="stat-card glass-effect card-elegant rounded-2xl p-6 sm:p-8 text-center mobile-card-spacing" style="--accent-color: #ea580c;">
-                    <div class="w-12 h-12 sm:w-16 sm:h-16 mx-auto mb-4 sm:mb-6 rounded-full bg-orange-50 flex items-center justify-center">
-                        <i class="fas fa-water text-orange-600 text-lg sm:text-xl"></i>
-                    </div>
-                    <h3 class="text-2xl sm:text-3xl lg:text-4xl font-bold counter text-gray-900 mb-2" data-count="100">0</h3>
-                    <p class="text-gray-600 font-medium text-balance text-sm sm:text-base">% Urgent Action Required</p>
-                </div>
-            </div>
-
-            <!-- Impact Analysis -->
-            <div class="grid lg:grid-cols-2 gap-6 sm:gap-12 mb-12 lg:mb-16">
-                <!-- World Bank Report -->
-                <a href="https://www.worldbank.org/en/news/press-release/2021/09/13/climate-change-could-force-216-million-people-to-migrate-within-their-own-countries-by-2050" target="_blank" class="block h-full">
-                    <div class="glass-effect card-elegant rounded-3xl p-6 sm:p-10 hover:shadow-2xl transition-all duration-300 group cursor-pointer h-full flex flex-col mobile-card-spacing">
-                        <div class="flex items-center justify-between mb-6">
-                            <div class="flex items-center">
-                                <div class="w-12 h-12 bg-blue-50 rounded-xl flex items-center justify-center mr-4">
-                                    <i class="fas fa-newspaper text-blue-600 text-xl"></i>
-                                </div>
-                                <div>
-                                    <h4 class="text-2xl font-semibold text-gray-900">World Bank Report</h4>
-                                    <p class="text-sm text-gray-500">PRESS RELEASE • September 13, 2021</p>
-                                </div>
-                            </div>
-                            <div class="text-blue-600 group-hover:translate-x-2 transition-transform">
-                                <i class="fas fa-external-link-alt text-xl"></i>
-                            </div>
-                        </div>
-                        <h5 class="text-2xl font-bold text-gray-900 mb-4 group-hover:text-blue-600 transition-colors">Climate change could displace 216 million by 2050</h5>
-                        <p class="text-gray-600 mb-6 leading-relaxed">World Bank warns 'climate migrants' will be in the tens of millions in three decades even if urgent action is taken.</p>
-                        <div class="bg-gradient-to-r from-blue-50 to-green-50 rounded-2xl p-6 mb-6 border-l-4 border-blue-500">
-                            <div class="flex items-center justify-center mb-4">
-                                <i class="fas fa-users text-blue-600 text-3xl mr-4"></i>
-                                <span class="text-2xl font-light text-gray-900">Displaced Communities</span>
-                            </div>
-                            <p class="text-gray-700 text-center">The impact of climate change in places such as Mozambique are among the leading sources of new flows of refugees and internally displaced people</p>
-                        </div>
-                        <div class="flex items-center justify-between">
-                            <p class="text-sm text-gray-500">(world bank, 2021)</p>
-                            <div class="flex items-center text-blue-600 text-sm font-medium">
-                                <span class="mr-2">Read Full Report</span>
-                                <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                            </div>
-                        </div>
-                    </div>
-                </a>
-
-                <!-- Climate Impacts -->
-                <div class="glass-effect card-elegant rounded-3xl p-6 sm:p-10 h-full flex flex-col mobile-card-spacing">
-                    <div class="flex items-center justify-between mb-8">
-                        <div class="flex items-center">
-                            <div class="w-12 h-12 bg-red-50 rounded-xl flex items-center justify-center mr-4">
-                                <i class="fas fa-exclamation-triangle text-red-600 text-xl"></i>
-                            </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-gray-800">Consequences in ASEAN:</h3>
+                    <div class="space-y-3">
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-cloud-rain text-blue-500 mt-1"></i>
                             <div>
-                                <h4 class="text-2xl font-semibold text-gray-900">Climate Impacts</h4>
-                                <p class="text-sm text-gray-500">Global Environmental Threats</p>
+                                <span class="font-medium text-sm">Extreme Weather</span>
+                                <p class="text-xs text-gray-600">More frequent typhoons, droughts, and flooding events</p>
                             </div>
                         </div>
-                        <div class="text-red-600">
-                            <i class="fas fa-globe text-2xl"></i>
-                        </div>
-                    </div>
-                    
-                    <div class="space-y-4 sm:space-y-6">
-                        <div class="flex items-center p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-orange-50 to-red-50 border-l-4 border-orange-500 group hover:shadow-lg transition-all duration-300 cursor-pointer mobile-touch-target" onclick="openClimateModal('wildfire')">
-                            <div class="w-12 h-12 rounded-xl bg-orange-100 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                                <i class="fas fa-fire text-orange-600 text-xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h6 class="font-semibold text-gray-900 mb-1">Wildfire</h6>
-                                <p class="text-sm text-gray-600">Forest destruction & air quality degradation</p>
-                            </div>
-                            <div class="text-orange-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <i class="fas fa-arrow-right"></i>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-seedling text-green-500 mt-1"></i>
+                            <div>
+                                <span class="font-medium text-sm">Agriculture Impact</span>
+                                <p class="text-xs text-gray-600">Reduced crop yields and shifting growing seasons</p>
                             </div>
                         </div>
-                        
-                        <div class="flex items-center p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-blue-50 to-cyan-50 border-l-4 border-blue-500 group hover:shadow-lg transition-all duration-300 cursor-pointer mobile-touch-target" onclick="openClimateModal('flooding')">
-                            <div class="w-12 h-12 rounded-xl bg-blue-100 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                                <i class="fas fa-water text-blue-600 text-xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h6 class="font-semibold text-gray-900 mb-1">Flooding</h6>
-                                <p class="text-sm text-gray-600">Coastal erosion & infrastructure damage</p>
-                            </div>
-                            <div class="text-blue-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-yellow-50 to-orange-50 border-l-4 border-yellow-500 group hover:shadow-lg transition-all duration-300 cursor-pointer mobile-touch-target" onclick="openClimateModal('drought')">
-                            <div class="w-12 h-12 rounded-xl bg-yellow-100 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                                <i class="fas fa-sun text-yellow-600 text-xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h6 class="font-semibold text-gray-900 mb-1">Drought</h6>
-                                <p class="text-sm text-gray-600">Water scarcity & agricultural collapse</p>
-                            </div>
-                            <div class="text-yellow-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        </div>
-                        
-                        <div class="flex items-center p-3 sm:p-4 rounded-2xl bg-gradient-to-r from-gray-50 to-slate-50 border-l-4 border-gray-500 group hover:shadow-lg transition-all duration-300 cursor-pointer mobile-touch-target" onclick="openClimateModal('storm')">
-                            <div class="w-12 h-12 rounded-xl bg-gray-100 flex items-center justify-center mr-4 group-hover:scale-110 transition-transform">
-                                <i class="fas fa-wind text-gray-600 text-xl"></i>
-                            </div>
-                            <div class="flex-1">
-                                <h6 class="font-semibold text-gray-900 mb-1">Storm</h6>
-                                <p class="text-sm text-gray-600">Extreme weather & displacement</p>
-                            </div>
-                            <div class="text-gray-600 opacity-0 group-hover:opacity-100 transition-opacity">
-                                <i class="fas fa-arrow-right"></i>
-                            </div>
-                        </div>
-                    </div>
-                    
-
-                </div>
-            </div>
-
-            <!-- Critical Warning -->
-            <div class="text-center">
-                <div class="gradient-bg text-white rounded-3xl p-8 lg:p-12 relative overflow-hidden">
-                    <div class="absolute inset-0 bg-black/10"></div>
-                    <div class="relative">
-                        <div class="flex items-center justify-center mb-6">
-                            <i class="fas fa-exclamation-triangle text-red-300 text-2xl mr-4"></i>
-                            <span class="text-xl font-medium tracking-wide uppercase">CRITICAL WARNING</span>
-                            <i class="fas fa-exclamation-triangle text-red-300 text-2xl ml-4"></i>
-                        </div>
-                        <h3 class="text-3xl lg:text-4xl font-bold mb-4 text-balance">Our planet is on the brink of collapse !!!</h3>
-                        <p class="text-lg opacity-90">Immediate action is required to prevent irreversible damage</p>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Impact Visualization -->
-    <section class="py-12 lg:py-32 bg-white">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6">
-            <div class="grid lg:grid-cols-2 gap-8 lg:gap-20 items-center">
-                <div class="fade-in">
-                    <h2 class="text-2xl sm:text-3xl lg:text-5xl font-bold text-gray-900 mb-8 lg:mb-12 text-balance">Health & Environmental Impact</h2>
-                    <div class="space-y-6 lg:space-y-8">
-                        <div class="flex items-start space-x-4 lg:space-x-6 group">
-                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-red-50 rounded-xl flex items-center justify-center group-hover:bg-red-100 transition-colors duration-300 flex-shrink-0">
-                                <i class="fas fa-skull-crossbones text-red-600 text-sm lg:text-base"></i>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <h4 class="font-semibold text-lg lg:text-xl text-gray-900 mb-1">1,256,300 Premature Deaths</h4>
-                                <p class="text-gray-600 leading-relaxed text-sm lg:text-base">PM2.5 air pollution deaths annually</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start space-x-4 lg:space-x-6 group">
-                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-blue-50 rounded-xl flex items-center justify-center group-hover:bg-blue-100 transition-colors duration-300 flex-shrink-0">
-                                <i class="fas fa-lungs text-blue-600 text-sm lg:text-base"></i>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <h4 class="font-semibold text-lg lg:text-xl text-gray-900 mb-1">~14% Respiratory Illness</h4>
-                                <p class="text-gray-600 leading-relaxed text-sm lg:text-base">ASEAN population affected annually</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start space-x-4 lg:space-x-6 group">
-                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-green-50 rounded-xl flex items-center justify-center group-hover:bg-green-100 transition-colors duration-300 flex-shrink-0">
-                                <i class="fas fa-utensils text-green-600 text-sm lg:text-base"></i>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <h4 class="font-semibold text-lg lg:text-xl text-gray-900 mb-1">20.7% Food Crisis</h4>
-                                <p class="text-gray-600 leading-relaxed text-sm lg:text-base">140 million people face food insecurity</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start space-x-4 lg:space-x-6 group">
-                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-yellow-50 rounded-xl flex items-center justify-center group-hover:bg-yellow-100 transition-colors duration-300 flex-shrink-0">
-                                <i class="fas fa-water text-yellow-600 text-sm lg:text-base"></i>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <h4 class="font-semibold text-lg lg:text-xl text-gray-900 mb-1">25% Flooding Risk</h4>
-                                <p class="text-gray-600 leading-relaxed text-sm lg:text-base">Rising sea levels affect low-lying areas</p>
-                            </div>
-                        </div>
-                        <div class="flex items-start space-x-4 lg:space-x-6 group">
-                            <div class="w-10 h-10 lg:w-12 lg:h-12 bg-purple-50 rounded-xl flex items-center justify-center group-hover:bg-purple-100 transition-colors duration-300 flex-shrink-0">
-                                <i class="fas fa-industry text-purple-600 text-sm lg:text-base"></i>
-                            </div>
-                            <div class="min-w-0 flex-1">
-                                <h4 class="font-semibold text-lg lg:text-xl text-gray-900 mb-1">33.6% Emission Source</h4>
-                                <p class="text-gray-600 leading-relaxed text-sm lg:text-base">Electricity and heat generation sectors</p>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                <div class="fade-in">
-                    <div class="glass-effect rounded-3xl p-6 lg:p-8">
-                        <div class="w-full h-64 sm:h-80 lg:h-96">
-                            <canvas id="emissionsChart" class="w-full h-full"></canvas>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Indonesia Focus -->
-    <section class="py-20 lg:py-32 bg-gray-50">
-        <div class="max-w-7xl mx-auto px-6">
-            <div class="text-center mb-20">
-                <h2 class="text-4xl lg:text-5xl font-bold text-gray-900 mb-6 text-balance">Indonesia: A Critical Case Study</h2>
-                <p class="text-xl text-gray-600 text-balance">Examining the correlation between food waste and emissions</p>
-                <div class="section-divider max-w-24 mx-auto mt-8"></div>
-            </div>
-            <div class="grid lg:grid-cols-3 gap-8">
-                <div class="glass-effect card-elegant rounded-3xl p-10 text-center">
-                    <div class="w-20 h-20 mx-auto mb-8 rounded-2xl bg-red-50 flex items-center justify-center">
-                        <i class="fas fa-chart-line text-red-600 text-2xl"></i>
-                    </div>
-                    <h3 class="font-semibold text-xl text-gray-900 mb-4">CO₂ Levels</h3>
-                    <div class="text-4xl font-bold text-red-600 counter mb-2" data-count="424.60">0</div>
-                    <p class="text-gray-600">ppm average (2025 data)</p>
-                </div>
-                <div class="glass-effect card-elegant rounded-3xl p-10 text-center">
-                    <div class="w-20 h-20 mx-auto mb-8 rounded-2xl bg-orange-50 flex items-center justify-center">
-                        <i class="fas fa-trash-alt text-orange-600 text-2xl"></i>
-                    </div>
-                    <h3 class="font-semibold text-xl text-gray-900 mb-4">Food Waste</h3>
-                    <div class="text-4xl font-bold text-orange-600 counter mb-2" data-count="2318.29">0</div>
-                    <p class="text-gray-600">tons/day (July 2025)</p>
-                </div>
-                <div class="glass-effect card-elegant rounded-3xl p-10 text-center">
-                    <div class="w-20 h-20 mx-auto mb-8 rounded-2xl bg-blue-50 flex items-center justify-center">
-                        <i class="fas fa-globe text-blue-600 text-2xl"></i>
-                    </div>
-                    <h3 class="font-semibold text-xl text-gray-900 mb-4">Global Rank</h3>
-                    <div class="text-4xl font-bold text-blue-600 mb-2">#2</div>
-                    <p class="text-gray-600">Most diligent in food waste management</p>
-                </div>
-            </div>
-            <div class="mt-12 text-center">
-                <p class="text-gray-600 text-balance">Indonesia contributes 33.6% of ASEAN CO₂ emissions from electricity and heat generation, with food waste decomposition adding 8-10% to global greenhouse gases.</p>
-            </div>
-        </div>
-    </section>
-
-    <!-- Detailed Analysis -->
-    <section class="py-12 lg:py-20 bg-white">
-        <div class="max-w-6xl mx-auto px-6">
-            <div class="text-center mb-12">
-                <h2 class="text-3xl lg:text-4xl font-bold text-gray-900 mb-4">Detailed Analysis</h2>
-                <div class="section-divider max-w-24 mx-auto"></div>
-            </div>
-            
-            <div class="grid lg:grid-cols-2 gap-8">
-                <!-- Emission Breakdown -->
-                <div class="fade-in">
-                    <div class="glass-effect rounded-2xl p-6">
-                        <div class="flex items-center mb-6">
-                            <div class="w-12 h-12 bg-red-500 rounded-xl flex items-center justify-center mr-4">
-                                <i class="fas fa-chart-pie text-white text-lg"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-900">Emission Breakdown</h3>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <div class="flex items-center p-4 bg-red-50 rounded-xl border-l-4 border-red-500 group hover:bg-red-100 transition-colors duration-300">
-                                <div class="flex items-center flex-shrink-0 mr-6">
-                                    <div class="w-3 h-3 bg-red-500 rounded-full mr-3"></div>
-                                    <span class="font-medium text-gray-900">CO₂</span>
-                                </div>
-                                <div class="flex-1 text-right">
-                                    <div class="relative">
-                                        <span class="text-xl font-bold text-red-600 group-hover:opacity-0 transition-opacity duration-300">70%</span>
-                                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span class="text-sm font-medium text-red-600 leading-relaxed">Primary greenhouse gas from fossil fuel combustion</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center p-4 bg-orange-50 rounded-xl border-l-4 border-orange-500 group hover:bg-orange-100 transition-colors duration-300">
-                                <div class="flex items-center flex-shrink-0 mr-6">
-                                    <div class="w-3 h-3 bg-orange-500 rounded-full mr-3"></div>
-                                    <span class="font-medium text-gray-900">CH₄</span>
-                                </div>
-                                <div class="flex-1 text-right">
-                                    <div class="relative">
-                                        <span class="text-xl font-bold text-orange-600 group-hover:opacity-0 transition-opacity duration-300">23%</span>
-                                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span class="text-sm font-medium text-orange-600 leading-relaxed">28-34x more potent than CO₂</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center p-4 bg-yellow-50 rounded-xl border-l-4 border-yellow-500 group hover:bg-yellow-100 transition-colors duration-300">
-                                <div class="flex items-center flex-shrink-0 mr-6">
-                                    <div class="w-3 h-3 bg-yellow-500 rounded-full mr-3"></div>
-                                    <span class="font-medium text-gray-900">N₂O</span>
-                                </div>
-                                <div class="flex-1 text-right">
-                                    <div class="relative">
-                                        <span class="text-xl font-bold text-yellow-600 group-hover:opacity-0 transition-opacity duration-300">5%</span>
-                                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span class="text-sm font-medium text-yellow-600 leading-relaxed">From agricultural practices</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center p-4 bg-purple-50 rounded-xl border-l-4 border-purple-500 group hover:bg-purple-100 transition-colors duration-300">
-                                <div class="flex items-center flex-shrink-0 mr-6">
-                                    <div class="w-3 h-3 bg-purple-500 rounded-full mr-3"></div>
-                                    <span class="font-medium text-gray-900">F-gases</span>
-                                </div>
-                                <div class="flex-1 text-right">
-                                    <div class="relative">
-                                        <span class="text-xl font-bold text-purple-600 group-hover:opacity-0 transition-opacity duration-300">2%</span>
-                                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span class="text-sm font-medium text-purple-600 leading-relaxed">Industrial refrigeration</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-                
-                <!-- Food Waste Lifecycle -->
-                <div class="fade-in">
-                    <div class="glass-effect rounded-2xl p-6">
-                        <div class="flex items-center mb-6">
-                            <div class="w-12 h-12 bg-green-500 rounded-xl flex items-center justify-center mr-4">
-                                <i class="fas fa-recycle text-white text-lg"></i>
-                            </div>
-                            <h3 class="text-xl font-bold text-gray-900">Food Waste Lifecycle</h3>
-                        </div>
-                        
-                        <div class="space-y-4">
-                            <div class="flex items-center p-4 bg-blue-50 rounded-xl border-l-4 border-blue-500 group hover:bg-blue-100 transition-colors duration-300">
-                                <div class="flex items-center flex-shrink-0 mr-6">
-                                    <i class="fas fa-seedling text-blue-600 mr-3"></i>
-                                    <span class="font-medium text-gray-900">Agriculture</span>
-                                </div>
-                                <div class="flex-1 text-right">
-                                    <div class="relative">
-                                        <span class="text-xl font-bold text-blue-600 group-hover:opacity-0 transition-opacity duration-300">21.78%</span>
-                                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span class="text-sm font-medium text-blue-600 leading-relaxed">Land use & deforestation</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center p-4 bg-indigo-50 rounded-xl border-l-4 border-indigo-500 group hover:bg-indigo-100 transition-colors duration-300">
-                                <div class="flex items-center flex-shrink-0 mr-6">
-                                    <i class="fas fa-industry text-indigo-600 mr-3"></i>
-                                    <span class="font-medium text-gray-900">Processing</span>
-                                </div>
-                                <div class="flex-1 text-right">
-                                    <div class="relative">
-                                        <span class="text-xl font-bold text-indigo-600 group-hover:opacity-0 transition-opacity duration-300">10-15%</span>
-                                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span class="text-sm font-medium text-indigo-600 leading-relaxed">Energy-intensive packaging</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center p-4 bg-cyan-50 rounded-xl border-l-4 border-cyan-500 group hover:bg-cyan-100 transition-colors duration-300">
-                                <div class="flex items-center flex-shrink-0 mr-6">
-                                    <i class="fas fa-truck text-cyan-600 mr-3"></i>
-                                    <span class="font-medium text-gray-900">Distribution</span>
-                                </div>
-                                <div class="flex-1 text-right">
-                                    <div class="relative">
-                                        <span class="text-xl font-bold text-cyan-600 group-hover:opacity-0 transition-opacity duration-300">14.85%</span>
-                                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span class="text-sm font-medium text-cyan-600 leading-relaxed">Transportation emissions</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            
-                            <div class="flex items-center p-4 bg-teal-50 rounded-xl border-l-4 border-teal-500 group hover:bg-teal-100 transition-colors duration-300">
-                                <div class="flex items-center flex-shrink-0 mr-6">
-                                    <i class="fas fa-home text-teal-600 mr-3"></i>
-                                    <span class="font-medium text-gray-900">Consumption</span>
-                                </div>
-                                <div class="flex-1 text-right">
-                                    <div class="relative">
-                                        <span class="text-xl font-bold text-teal-600 group-hover:opacity-0 transition-opacity duration-300">61%</span>
-                                        <div class="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-300">
-                                            <span class="text-sm font-medium text-teal-600 leading-relaxed">Household waste</span>
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-            
-            <!-- Compact Summary -->
-            <div class="mt-8 fade-in">
-                <div class="glass-effect card-elegant rounded-2xl p-6 bg-gradient-to-r from-gray-900 to-gray-800 text-white">
-                    <div class="flex items-center justify-center mb-4">
-                        <i class="fas fa-exclamation-triangle text-yellow-400 text-xl mr-3"></i>
-                        <h3 class="text-xl font-bold">Critical Impact Summary</h3>
-                    </div>
-                    
-                    <div class="grid grid-cols-3 gap-4 text-center">
-                        <div>
-                            <div class="text-2xl font-bold text-yellow-400">70%</div>
-                            <p class="text-gray-300 text-xs">CO₂ emissions</p>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-bold text-red-400">23%</div>
-                            <p class="text-gray-300 text-xs">Methane</p>
-                        </div>
-                        <div>
-                            <div class="text-2xl font-bold text-green-400">61%</div>
-                            <p class="text-gray-300 text-xs">Household waste</p>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-    </section>
-
-    <!-- Solution Section -->
-    <section class="py-20 lg:py-32 gradient-bg text-white relative overflow-hidden">
-        <div class="absolute inset-0 bg-black/5"></div>
-        <div class="relative max-w-7xl mx-auto px-6">
-            <div class="text-center mb-20">
-                <h2 class="text-5xl lg:text-6xl font-bold mb-6 text-balance">Introducing ZeroDish</h2>
-                <p class="text-xl lg:text-2xl font-light opacity-90 text-balance">The Future of Food Waste Management</p>
-                <div class="section-divider max-w-24 mx-auto mt-8 bg-white/20"></div>
-            </div>
-            <div class="grid lg:grid-cols-2 gap-16 lg:gap-20 items-center">
-                <div class="fade-in">
-                    <h3 class="text-3xl lg:text-4xl font-light mb-12 text-balance">Save the Planet Starts in Your Kitchen!</h3>
-                    <div class="space-y-6 mb-12">
-                        <div class="flex items-center space-x-4">
-                            <div class="w-6 h-6 rounded-full bg-green-300 flex items-center justify-center">
-                                <i class="fas fa-check text-green-800 text-xs"></i>
-                            </div>
-                            <span class="text-lg font-light">Convert food waste to biogas energy</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="w-6 h-6 rounded-full bg-green-300 flex items-center justify-center">
-                                <i class="fas fa-check text-green-800 text-xs"></i>
-                            </div>
-                            <span class="text-lg font-light">Real-time monitoring via smartphone app</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="w-6 h-6 rounded-full bg-green-300 flex items-center justify-center">
-                                <i class="fas fa-check text-green-800 text-xs"></i>
-                            </div>
-                            <span class="text-lg font-light">Reduce CO₂ emissions by 1642.5 kg/year</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="w-6 h-6 rounded-full bg-green-300 flex items-center justify-center">
-                                <i class="fas fa-check text-green-800 text-xs"></i>
-                            </div>
-                            <span class="text-lg font-light">Save 1642.5 kg LPG annually</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="w-6 h-6 rounded-full bg-green-300 flex items-center justify-center">
-                                <i class="fas fa-check text-green-800 text-xs"></i>
-                            </div>
-                            <span class="text-lg font-light">Community education on waste reduction</span>
-                        </div>
-                        <div class="flex items-center space-x-4">
-                            <div class="w-6 h-6 rounded-full bg-green-300 flex items-center justify-center">
-                                <i class="fas fa-check text-green-800 text-xs"></i>
-                            </div>
-                            <span class="text-lg font-light">Partnerships with local governments for scalability</span>
-                        </div>
-                    </div>
-                    <a href="https://zerodish.vercel.app/" target="_blank" 
-                       class="inline-flex items-center bg-white text-green-600 font-semibold py-4 px-8 rounded-2xl hover:bg-gray-50 transition duration-300 group">
-                        <span class="mr-3">Access ZeroDish App</span>
-                        <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                    </a>
-                </div>
-                <div class="fade-in">
-                    <div class="bg-white/10 backdrop-blur-sm rounded-3xl p-8 border border-white/20">
-                        <h4 class="text-2xl font-light mb-8 text-center text-balance">Impact Per Person Per Year</h4>
-                        <div class="grid grid-cols-2 gap-8">
-                            <div class="text-center">
-                                <div class="text-3xl font-light text-green-300 mb-2">3285 m³</div>
-                                <p class="text-sm opacity-80 font-medium">Biogas Produced</p>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-light text-green-300 mb-2">1642.5 kg</div>
-                                <p class="text-sm opacity-80 font-medium">CO₂ Reduction</p>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-light text-green-300 mb-2">547.5 kg</div>
-                                <p class="text-sm opacity-80 font-medium">Residue Granules</p>
-                            </div>
-                            <div class="text-center">
-                                <div class="text-3xl font-light text-green-300 mb-2">1642.5 kg</div>
-                                <p class="text-sm opacity-80 font-medium">LPG Savings</p>
+                        <div class="flex items-start gap-3">
+                            <i class="fa-solid fa-water text-cyan-500 mt-1"></i>
+                            <div>
+                                <span class="font-medium text-sm">Sea Level Rise</span>
+                                <p class="text-xs text-gray-600">Coastal flooding threatens 25% of ASEAN population</p>
                             </div>
                         </div>
                     </div>
                 </div>
             </div>
         </div>
-    </section>
+    </div>
 
-    <!-- Call to Action -->
-    <section class="py-20 lg:py-32 bg-gray-900 text-white">
-        <div class="max-w-4xl mx-auto px-6 text-center">
-            <h2 class="text-4xl lg:text-5xl font-bold mb-8 text-balance">Take Action Today</h2>
-            <p class="text-xl font-light mb-12 opacity-90 text-balance">Join the movement to reduce food waste and combat climate change</p>
-            <div class="flex flex-col sm:flex-row justify-center gap-6">
-                <a href="https://zerodish.vercel.app/" target="_blank" 
-                   class="bg-green-600 hover:bg-green-700 text-white font-semibold py-4 px-8 rounded-2xl transition duration-300 inline-flex items-center justify-center group">
-                    <span class="mr-2">Try ZeroDish Now</span>
-                    <i class="fas fa-arrow-right group-hover:translate-x-1 transition-transform"></i>
-                </a>
-                <button onclick="scrollToTop()" 
-                        class="border border-white/30 hover:bg-white hover:text-gray-900 text-white font-semibold py-4 px-8 rounded-2xl transition duration-300">
-                    Learn More
-                </button>
+    <div id="emissions-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('emissions-modal')">&times;</button>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="icon-badge bg-yellow-500 text-white"><i class="fa-solid fa-industry"></i></div>
+                <h2 class="text-2xl font-semibold text-yellow-600">Greenhouse Gas Emissions</h2>
             </div>
-        </div>
-    </section>
-
-    <!-- Footer -->
-    <footer class="bg-gray-950 text-white py-2">
-        <div class="text-center flex items-center justify-center h-full">
-            <p class="text-gray-400 font-light">© 2025 ZERODISH. All Rights Reserved.</p>
-        </div>
-    </footer>
-
-    <!-- Climate Impact Modal -->
-    <div id="climateModal" class="fixed inset-0 bg-black bg-opacity-50 z-50 hidden flex items-center justify-center p-4">
-        <div class="bg-white rounded-3xl max-w-2xl w-full max-h-[90vh] overflow-y-auto mobile-modal">
-            <div class="p-4 sm:p-8">
-                <div class="flex items-center justify-between mb-6">
-                    <div class="flex items-center">
-                        <div id="modalIcon" class="w-12 h-12 rounded-xl flex items-center justify-center mr-4">
-                            <i id="modalIconClass" class="text-xl"></i>
+            <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                    Greenhouse gas emissions are the primary driver of climate change, with different sectors contributing varying amounts to the global total. Understanding these sources is crucial for effective mitigation.
+                </p>
+                <div class="bg-yellow-50 p-4 rounded-lg border border-yellow-100">
+                    <h3 class="font-semibold text-yellow-800 mb-2">ASEAN Emission Sources:</h3>
+                    <div class="space-y-2">
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-yellow-700">Electricity & Heat</span>
+                            <span class="font-medium text-yellow-800">33.6%</span>
                         </div>
-                        <div>
-                            <h3 id="modalTitle" class="text-2xl font-semibold text-gray-900"></h3>
-                            <p class="text-sm text-gray-500">Climate Impact Analysis</p>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-yellow-700">Agriculture & Land Use</span>
+                            <span class="font-medium text-yellow-800">18.4%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-yellow-700">Industry</span>
+                            <span class="font-medium text-yellow-800">21.0%</span>
+                        </div>
+                        <div class="flex justify-between items-center">
+                            <span class="text-sm text-yellow-700">Transportation</span>
+                            <span class="font-medium text-yellow-800">16.2%</span>
                         </div>
                     </div>
-                    <button onclick="closeClimateModal()" class="text-gray-400 hover:text-gray-600 transition-colors">
-                        <i class="fas fa-times text-2xl"></i>
-                    </button>
                 </div>
-                <div id="modalContent" class="space-y-6">
-                    <!-- Content will be populated by JavaScript -->
+                <div class="grid grid-cols-2 gap-4">
+                    <div class="bg-red-50 p-3 rounded-lg border border-red-100">
+                        <div class="text-center">
+                            <div class="text-lg font-semibold text-red-600">CO₂</div>
+                            <div class="text-xs text-red-600">70% of emissions</div>
+                        </div>
+                    </div>
+                    <div class="bg-orange-50 p-3 rounded-lg border border-orange-100">
+                        <div class="text-center">
+                            <div class="text-lg font-semibold text-orange-600">CH₄</div>
+                            <div class="text-xs text-orange-600">23% of emissions</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div id="food-waste-modal" class="modal">
+        <div class="modal-content">
+            <button class="close-modal" onclick="closeModal('food-waste-modal')">&times;</button>
+            <div class="flex items-center gap-4 mb-6">
+                <div class="icon-badge bg-emerald-500 text-white"><i class="fa-solid fa-trash"></i></div>
+                <h2 class="text-2xl font-semibold text-emerald-600">Food Waste Crisis</h2>
+            </div>
+            <div class="space-y-4">
+                <p class="text-gray-700 leading-relaxed">
+                    Food waste is responsible for approximately 6% of global greenhouse gas emissions, making it a critical area for climate action. The problem spans the entire food supply chain.
+                </p>
+                <div class="bg-emerald-50 p-4 rounded-lg border border-emerald-100">
+                    <h3 class="font-semibold text-emerald-800 mb-2">Global Food Waste Facts:</h3>
+                    <ul class="space-y-1 text-emerald-700 text-sm">
+                        <li>• 1.3 billion tons of food wasted annually</li>
+                        <li>• Could feed 3 billion people</li>
+                        <li>• 8-10% of global greenhouse gas emissions</li>
+                        <li>• $1 trillion economic loss per year</li>
+                    </ul>
+                </div>
+                <div class="space-y-2">
+                    <h3 class="font-semibold text-gray-800">Food Waste by Stage:</h3>
+                    <div class="space-y-2">
+                        <div class="bg-blue-50 p-3 rounded-lg flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-seedling text-blue-600"></i>
+                                <span class="text-sm font-medium">Production</span>
+                            </div>
+                            <span class="text-blue-600 font-semibold">21.78%</span>
+                        </div>
+                        <div class="bg-indigo-50 p-3 rounded-lg flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-industry text-indigo-600"></i>
+                                <span class="text-sm font-medium">Processing</span>
+                            </div>
+                            <span class="text-indigo-600 font-semibold">10-15%</span>
+                        </div>
+                        <div class="bg-cyan-50 p-3 rounded-lg flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-truck text-cyan-600"></i>
+                                <span class="text-sm font-medium">Distribution</span>
+                            </div>
+                            <span class="text-cyan-600 font-semibold">14.85%</span>
+                        </div>
+                        <div class="bg-teal-50 p-3 rounded-lg flex justify-between items-center">
+                            <div class="flex items-center gap-2">
+                                <i class="fa-solid fa-house text-teal-600"></i>
+                                <span class="text-sm font-medium">Consumption</span>
+                            </div>
+                            <span class="text-teal-600 font-semibold">61%</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="bg-gray-100 p-4 rounded-lg">
+                    <h4 class="font-semibold text-gray-800 mb-2">The ZeroDish Solution:</h4>
+                    <p class="text-sm text-gray-700">
+                        Our innovative biogas conversion system can reduce household food waste emissions by up to 80% while generating clean energy for cooking and heating.
+                    </p>
                 </div>
             </div>
         </div>
     </div>
 
     <script>
-        // Counter Animation
-        function animateCounter(element) {
-            const target = parseFloat(element.dataset.count);
-            const duration = 2000;
-            const step = target / (duration / 16);
-            let current = 0;
-            
-            const timer = setInterval(() => {
-                current += step;
-                if (current >= target) {
-                    current = target;
-                    clearInterval(timer);
-                }
-                element.textContent = current % 1 === 0 ? Math.floor(current) : current.toFixed(2);
-            }, 16);
-        }
-
-        // Intersection Observer for animations
-        const observerOptions = {
-            threshold: 0.1,
-            rootMargin: '0px 0px -100px 0px'
-        };
-
-        const observer = new IntersectionObserver((entries) => {
-            entries.forEach(entry => {
-                if (entry.isIntersecting) {
-                    entry.target.classList.add('visible');
-                    
-                    // Animate counters when they come into view
-                    const counters = entry.target.querySelectorAll('.counter');
-                    counters.forEach(counter => {
-                        if (!counter.classList.contains('animated')) {
-                            counter.classList.add('animated');
-                            setTimeout(() => animateCounter(counter), 300);
-                        }
-                    });
-                }
-            });
-        }, observerOptions);
-
-        // Observe all fade-in elements AND sections with counters
-        document.querySelectorAll('.fade-in').forEach(el => {
-            observer.observe(el);
-        });
-
-        // Also observe sections that contain counters but might not have fade-in class
-        document.querySelectorAll('section').forEach(section => {
-            if (section.querySelectorAll('.counter').length > 0) {
-                observer.observe(section);
-            }
-        });
-
-        // Initialize on load
-        document.addEventListener('DOMContentLoaded', () => {
-            // Animate all counters with a slight delay to ensure they're visible
-            setTimeout(() => {
-                document.querySelectorAll('.counter').forEach(counter => {
-                    if (!counter.classList.contains('animated')) {
-                        counter.classList.add('animated');
-                        animateCounter(counter);
-                    }
-                });
-            }, 500);
-
-            // Create emissions chart
-            const ctx = document.getElementById('emissionsChart').getContext('2d');
-            new Chart(ctx, {
-                type: 'doughnut',
-                data: {
-                    labels: ['CO₂ (70%)', 'CH₄ (23%)', 'N₂O (5%)', 'F-gases (2%)'],
-                    datasets: [{
-                        data: [70, 23, 5, 2],
-                        backgroundColor: ['#ef4444', '#f97316', '#eab308', '#8b5cf6'],
-                        borderWidth: 0,
-                        cutout: '65%'
-                    }]
-                },
-                options: {
-                    responsive: true,
-                    maintainAspectRatio: false,
-                    plugins: {
-                        title: {
-                            display: true,
-                            text: 'ASEAN Greenhouse Gas Composition',
-                            font: { size: window.innerWidth < 768 ? 14 : 18, weight: '500', family: 'Poppins' },
-                            padding: { bottom: window.innerWidth < 768 ? 10 : 20 },
-                            color: '#374151'
-                        },
-                        legend: {
-                            position: 'bottom',
-                            labels: {
-                                padding: window.innerWidth < 768 ? 10 : 20,
-                                usePointStyle: true,
-                                pointStyle: 'circle',
-                                font: { family: 'Poppins', size: window.innerWidth < 768 ? 10 : 12 },
-                                color: '#6b7280'
-                            }
-                        }
-                    }
-                }
-            });
-        });
-
-        function scrollToTop() {
-            window.scrollTo({
-                top: 0,
-                behavior: 'smooth'
-            });
-        }
-
-        // Climate Impact Modal Functions
-        function openClimateModal(type) {
-            const modal = document.getElementById('climateModal');
-            const modalTitle = document.getElementById('modalTitle');
-            const modalIcon = document.getElementById('modalIcon');
-            const modalIconClass = document.getElementById('modalIconClass');
-            const modalContent = document.getElementById('modalContent');
-
-            const climateData = {
-                wildfire: {
-                    title: 'Wildfire',
-                    icon: 'fas fa-fire',
-                    iconBg: 'bg-orange-100',
-                    iconColor: 'text-orange-600',
-                    content: `
-                        <div class="space-y-6">
-                            <div class="bg-orange-50 rounded-2xl p-6 border-l-4 border-orange-500">
-                                <h4 class="font-semibold text-gray-900 mb-3">Overview</h4>
-                                <p class="text-gray-700 leading-relaxed">Wildfires have become increasingly frequent and intense due to climate change, with rising temperatures, prolonged droughts, and changing precipitation patterns creating ideal conditions for fire ignition and spread.</p>
-                            </div>
-                            
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div class="bg-red-50 rounded-2xl p-6">
-                                    <h5 class="font-semibold text-gray-900 mb-3 flex items-center">
-                                        <i class="fas fa-skull-crossbones text-red-600 mr-2"></i>
-                                        Human Impact
-                                    </h5>
-                                    <ul class="text-gray-700 space-y-2 text-sm">
-                                        <li>• Respiratory diseases from smoke inhalation</li>
-                                        <li>• Displacement of communities</li>
-                                        <li>• Loss of life and property</li>
-                                        <li>• Mental health impacts</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="bg-green-50 rounded-2xl p-6">
-                                    <h5 class="font-semibold text-gray-900 mb-3 flex items-center">
-                                        <i class="fas fa-tree text-green-600 mr-2"></i>
-                                        Environmental Impact
-                                    </h5>
-                                    <ul class="text-gray-700 space-y-2 text-sm">
-                                        <li>• Destruction of forest ecosystems</li>
-                                        <li>• Loss of biodiversity</li>
-                                        <li>• Soil erosion and degradation</li>
-                                        <li>• Carbon release into atmosphere</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-blue-50 rounded-2xl p-6">
-                                <h5 class="font-semibold text-gray-900 mb-3">Economic Consequences</h5>
-                                <p class="text-gray-700 leading-relaxed">Wildfires cause billions in economic losses annually, including property damage, infrastructure destruction, agricultural losses, and increased healthcare costs. The 2020 California wildfires alone caused over $10 billion in damages.</p>
-                            </div>
-                        </div>
-                    `
-                },
-                flooding: {
-                    title: 'Flooding',
-                    icon: 'fas fa-water',
-                    iconBg: 'bg-blue-100',
-                    iconColor: 'text-blue-600',
-                    content: `
-                        <div class="space-y-6">
-                            <div class="bg-blue-50 rounded-2xl p-6 border-l-4 border-blue-500">
-                                <h4 class="font-semibold text-gray-900 mb-3">Overview</h4>
-                                <p class="text-gray-700 leading-relaxed">Climate change is intensifying flooding events through increased rainfall intensity, rising sea levels, and more frequent extreme weather events. Coastal and inland flooding are becoming more severe and frequent.</p>
-                            </div>
-                            
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div class="bg-red-50 rounded-2xl p-6">
-                                    <h5 class="font-semibold text-gray-900 mb-3 flex items-center">
-                                        <i class="fas fa-home text-red-600 mr-2"></i>
-                                        Infrastructure Damage
-                                    </h5>
-                                    <ul class="text-gray-700 space-y-2 text-sm">
-                                        <li>• Destruction of roads and bridges</li>
-                                        <li>• Damage to buildings and homes</li>
-                                        <li>• Power grid disruptions</li>
-                                        <li>• Water and sewage system failures</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="bg-green-50 rounded-2xl p-6">
-                                    <h5 class="font-semibold text-gray-900 mb-3 flex items-center">
-                                        <i class="fas fa-users text-green-600 mr-2"></i>
-                                        Human Displacement
-                                    </h5>
-                                    <ul class="text-gray-700 space-y-2 text-sm">
-                                        <li>• Forced migration from coastal areas</li>
-                                        <li>• Loss of livelihoods</li>
-                                        <li>• Increased poverty rates</li>
-                                        <li>• Social disruption</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-yellow-50 rounded-2xl p-6">
-                                <h5 class="font-semibold text-gray-900 mb-3">Global Impact</h5>
-                                <p class="text-gray-700 leading-relaxed">By 2050, over 200 million people could be displaced by rising sea levels and increased flooding. Major cities like Miami, Shanghai, and Mumbai are particularly vulnerable to coastal flooding.</p>
-                            </div>
-                        </div>
-                    `
-                },
-                drought: {
-                    title: 'Drought',
-                    icon: 'fas fa-sun',
-                    iconBg: 'bg-yellow-100',
-                    iconColor: 'text-yellow-600',
-                    content: `
-                        <div class="space-y-6">
-                            <div class="bg-yellow-50 rounded-2xl p-6 border-l-4 border-yellow-500">
-                                <h4 class="font-semibold text-gray-900 mb-3">Overview</h4>
-                                <p class="text-gray-700 leading-relaxed">Droughts are becoming more frequent, severe, and prolonged due to climate change. Rising temperatures increase evaporation rates, while changing precipitation patterns reduce water availability in many regions.</p>
-                            </div>
-                            
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div class="bg-red-50 rounded-2xl p-6">
-                                    <h5 class="font-semibold text-gray-900 mb-3 flex items-center">
-                                        <i class="fas fa-seedling text-red-600 mr-2"></i>
-                                        Agricultural Impact
-                                    </h5>
-                                    <ul class="text-gray-700 space-y-2 text-sm">
-                                        <li>• Crop failures and reduced yields</li>
-                                        <li>• Livestock losses</li>
-                                        <li>• Food insecurity</li>
-                                        <li>• Economic losses for farmers</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="bg-green-50 rounded-2xl p-6">
-                                    <h5 class="font-semibold text-gray-900 mb-3 flex items-center">
-                                        <i class="fas fa-tint text-green-600 mr-2"></i>
-                                        Water Scarcity
-                                    </h5>
-                                    <ul class="text-gray-700 space-y-2 text-sm">
-                                        <li>• Drinking water shortages</li>
-                                        <li>• Reduced water quality</li>
-                                        <li>• Ecosystem degradation</li>
-                                        <li>• Increased conflicts over water</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-orange-50 rounded-2xl p-6">
-                                <h5 class="font-semibold text-gray-900 mb-3">Long-term Consequences</h5>
-                                <p class="text-gray-700 leading-relaxed">Prolonged droughts can lead to desertification, biodiversity loss, and forced migration. The 2011-2017 California drought caused over $3.8 billion in agricultural losses and affected millions of people.</p>
-                            </div>
-                        </div>
-                    `
-                },
-                storm: {
-                    title: 'Storm',
-                    icon: 'fas fa-wind',
-                    iconBg: 'bg-gray-100',
-                    iconColor: 'text-gray-600',
-                    content: `
-                        <div class="space-y-6">
-                            <div class="bg-gray-50 rounded-2xl p-6 border-l-4 border-gray-500">
-                                <h4 class="font-semibold text-gray-900 mb-3">Overview</h4>
-                                <p class="text-gray-700 leading-relaxed">Climate change is intensifying storms, hurricanes, and extreme weather events. Warmer ocean temperatures provide more energy for storms, while changing atmospheric conditions create more frequent and severe weather patterns.</p>
-                            </div>
-                            
-                            <div class="grid md:grid-cols-2 gap-6">
-                                <div class="bg-red-50 rounded-2xl p-6">
-                                    <h5 class="font-semibold text-gray-900 mb-3 flex items-center">
-                                        <i class="fas fa-exclamation-triangle text-red-600 mr-2"></i>
-                                        Immediate Dangers
-                                    </h5>
-                                    <ul class="text-gray-700 space-y-2 text-sm">
-                                        <li>• High winds and flying debris</li>
-                                        <li>• Storm surges and flooding</li>
-                                        <li>• Power outages</li>
-                                        <li>• Transportation disruptions</li>
-                                    </ul>
-                                </div>
-                                
-                                <div class="bg-green-50 rounded-2xl p-6">
-                                    <h5 class="font-semibold text-gray-900 mb-3 flex items-center">
-                                        <i class="fas fa-chart-line text-green-600 mr-2"></i>
-                                        Increasing Frequency
-                                    </h5>
-                                    <ul class="text-gray-700 space-y-2 text-sm">
-                                        <li>• More Category 4-5 hurricanes</li>
-                                        <li>• Longer storm seasons</li>
-                                        <li>• Unpredictable storm tracks</li>
-                                        <li>• Higher storm intensities</li>
-                                    </ul>
-                                </div>
-                            </div>
-                            
-                            <div class="bg-blue-50 rounded-2xl p-6">
-                                <h5 class="font-semibold text-gray-900 mb-3">Economic Impact</h5>
-                                <p class="text-gray-700 leading-relaxed">Extreme storms cause billions in damages annually. Hurricane Katrina (2005) caused $125 billion in damages, while Hurricane Harvey (2017) caused $125 billion. These costs are expected to rise as storms become more intense.</p>
-                            </div>
-                        </div>
-                    `
-                }
-            };
-
-            const data = climateData[type];
-            modalTitle.textContent = data.title;
-            modalIcon.className = `w-12 h-12 rounded-xl flex items-center justify-center mr-4 ${data.iconBg}`;
-            modalIconClass.className = `${data.icon} ${data.iconColor} text-xl`;
-            modalContent.innerHTML = data.content;
-            
-            modal.classList.remove('hidden');
+        function openModal(modalId) {
+            document.getElementById(modalId).classList.add('show');
             document.body.style.overflow = 'hidden';
         }
 
-        function closeClimateModal() {
-            const modal = document.getElementById('climateModal');
-            modal.classList.add('hidden');
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.remove('show');
             document.body.style.overflow = 'auto';
         }
 
-        // Close modal when clicking outside
-        document.getElementById('climateModal').addEventListener('click', function(e) {
-            if (e.target === this) {
-                closeClimateModal();
+        function openWorldBankLink() {
+            window.open('https://www.worldbank.org/en/news/press-release/2021/09/13/climate-change-could-force-216-million-people-to-migrate-within-their-own-countries-by-2050', '_blank');
+        }
+
+        window.addEventListener('click', function(event) {
+            const modals = document.querySelectorAll('.modal');
+            modals.forEach(modal => {
+                if (event.target === modal) {
+                    closeModal(modal.id);
+                }
+            });
+        });
+
+        document.addEventListener('keydown', function(event) {
+            if (event.key === 'Escape') {
+                const openModal = document.querySelector('.modal.show');
+                if (openModal) {
+                    closeModal(openModal.id);
+                }
             }
         });
 
-        // Smooth scrolling for internal links
-        document.querySelectorAll('a[href^="#"]').forEach(anchor => {
-            anchor.addEventListener('click', function (e) {
-                e.preventDefault();
-                const target = document.querySelector(this.getAttribute('href'));
-                if (target) {
-                    target.scrollIntoView({
-                        behavior: 'smooth',
-                        block: 'start'
-                    });
-                }
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach((e) => {
+                if (e.isIntersecting) e.target.classList.add('visible');
             });
+        }, { threshold: .1 });
+
+        document.querySelectorAll('.fade-in').forEach((el) => observer.observe(el));
+
+        document.addEventListener('DOMContentLoaded', () => {
+            const ctxHero = document.getElementById('heroDoughnut');
+            if (ctxHero) {
+                new Chart(ctxHero, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['CO₂ (70%)', 'CH₄ (23%)', 'N₂O (5%)', 'F-gases (2%)'],
+                        datasets: [{
+                            data: [70, 23, 5, 2],
+                            backgroundColor: ['#ef4444', '#f97316', '#eab308', '#8b5cf6'],
+                            borderWidth: 0,
+                            cutout: '65%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                display: false
+                            }
+                        }
+                    }
+                });
+            }
+
+            const ctx = document.getElementById('emissionsChart');
+            if (ctx) {
+                new Chart(ctx, {
+                    type: 'doughnut',
+                    data: {
+                        labels: ['CO₂ (70%)', 'CH₄ (23%)', 'N₂O (5%)', 'F-gases (2%)'],
+                        datasets: [{
+                            data: [70, 23, 5, 2],
+                            backgroundColor: ['#ef4444', '#f97316', '#eab308', '#8b5cf6'],
+                            borderWidth: 0,
+                            cutout: '68%'
+                        }]
+                    },
+                    options: {
+                        responsive: true,
+                        maintainAspectRatio: false,
+                        plugins: {
+                            legend: {
+                                position: 'bottom',
+                                labels: {
+                                    usePointStyle: true,
+                                    pointStyle: 'circle'
+                                }
+                            },
+                            title: {
+                                display: true,
+                                text: 'ASEAN Greenhouse Gas Composition'
+                            }
+                        }
+                    }
+                });
+            }
         });
     </script>
 </body>
